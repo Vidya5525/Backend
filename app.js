@@ -10,11 +10,19 @@ import userRouter from "./Router/userRouter.js";
 import AppointmentRouter from "./Router/appointmentRouter.js";
 
 const app = express();
-config({ path: "./config/.env" });
+config({ path: "./config/.env" }); // Load environment variables
 
 // CORS Configuration
+const allowedOrigins = [process.env.FRONTEND_URL]; // No trailing slash
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL, // Using FRONTEND_URL from .env
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin) || !origin) { // Allow requests without an origin (like Postman or server-side requests)
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ["GET", "PUT", "DELETE", "POST"],
     credentials: true
 }));
